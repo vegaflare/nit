@@ -17,7 +17,10 @@ int main(int argc, const char * argv[]){
         printf("Index %d: %s\n", i, argv[i]);
         if(strcmp(argv[0], "init") == 0){
             printf("Init will be processed.\n");
-            return init();
+            return cmd_init();
+        }
+        else if(strcmp(argv[0], "status") == 0){
+            return cmd_status(argv);
         }
         
     }

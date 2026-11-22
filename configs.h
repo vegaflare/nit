@@ -12,8 +12,12 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #define DEFAULT_DIR_C_MODE 0755
 
-int init();
-int make_dir(const char *path);
+const char head_prefix[] = "refs: refs/heads/";
+const char default_branch[] = "master";
+
+int cmd_init();
+int cmd_status(const char *branch);

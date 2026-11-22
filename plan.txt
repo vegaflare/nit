@@ -1,1 +1,2 @@
-TBD: main - > init
+DONE:   main - > init
+WIP:    main - > status (currently supports only master branch)

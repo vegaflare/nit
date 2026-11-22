@@ -1,11 +1,9 @@
 #include "configs.h"
 #include "common-funcs.h"
 
-const char head_prefix[] = "refs: refs/heads/";
-const char default_branch[] = "master";
-char **branch = NULL;
 
-int init()
+
+int cmd_init()
 {
     // Check if .nit already exists
     struct stat st = {0};
@@ -16,7 +14,7 @@ int init()
         printf("This is already a nit repo.\n");
         return 1;
     }
-    if (mkdir(".nit", DEFAULT_DIR_C_MODE) == 0)
+    if (make_dir(".nit") >= 0)
     {
         FILE *head, *description;
         head = fopen(".nit/HEAD", "w");
@@ -29,8 +27,9 @@ int init()
         fclose(description);
         
 
-        if (make_dir(".nit/refs") < 0  || make_dir(".nit/refs/heads") < 0){
-            printf("Error creating refs\n");
+        if (make_dir(".nit/refs") < 0  || make_dir(".nit/refs/heads") < 0 || make_dir(".nit/objects") < 0){
+            printf("Error initializing repo.\n");
+            return 2;
         }
         printf("nit repo initialized.\n");
     }
