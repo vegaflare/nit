@@ -1,4 +1,4 @@
-/*  All .c files are to include this configs.h as a 
+/*  All .c files are to include this configs.h as a
     central include file. This will help avoid
     adding same headers over and over again across
     multiple c files.

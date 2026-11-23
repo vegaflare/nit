@@ -1,8 +1,6 @@
 #include "configs.h"
 #include "common-funcs.h"
 
-
-
 int cmd_init()
 {
     // Check if .nit already exists
@@ -25,9 +23,9 @@ int cmd_init()
         description = fopen(".nit/description", "w");
         fprintf(description, "Unnamed repo. Edit this file to name the repo.\n");
         fclose(description);
-        
 
-        if (make_dir(".nit/refs") < 0  || make_dir(".nit/refs/heads") < 0 || make_dir(".nit/objects") < 0){
+        if (make_dir(".nit/refs") < 0 || make_dir(".nit/refs/heads") < 0 || make_dir(".nit/objects") < 0)
+        {
             printf("Error initializing repo.\n");
             return 2;
         }
