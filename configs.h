@@ -8,7 +8,6 @@
 #define CONFIG_H
 #endif
 
-#include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -16,8 +15,10 @@
 
 #define DEFAULT_DIR_C_MODE 0755
 
-const char head_prefix[] = "refs: refs/heads/";
-const char default_branch[] = "master";
+extern const char head_prefix[];
+extern const char default_branch[];
+extern const char nit_help[];
 
 int cmd_init();
-int cmd_status(const char *branch);
+int cmd_status(const char **argv, int argc);
+int cmd_update_index(const char **argv, int argc);

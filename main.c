@@ -1,8 +1,9 @@
 // Nit! my own version of git
 
 #include "configs.h"
+#include <string.h>
 
-int main(int argc, const char *argv[])
+int main(int argc, const char **argv)
 {
     if (argc <= 1)
     {
@@ -25,7 +26,11 @@ int main(int argc, const char *argv[])
         }
         else if (strcmp(argv[0], "status") == 0)
         {
-            return cmd_status(argv);
+            return cmd_status(argv, argc);
+        }
+        else if (strcmp(argv[0], "update-index") == 0)
+        {
+            return cmd_update_index(argv, argc);
         }
     }
 }

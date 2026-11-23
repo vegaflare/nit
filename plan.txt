@@ -1,2 +1,4 @@
 DONE:   main - > init
 WIP:    main - > status (currently supports only master branch)
+WIP:    main - > index
+TODO:   main - > hash_object
