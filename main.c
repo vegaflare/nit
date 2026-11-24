@@ -1,6 +1,7 @@
 // Nit! my own version of git
 
 #include "configs.h"
+#include "nit-idx.h"
 #include <string.h>
 
 int main(int argc, const char **argv)
@@ -31,6 +32,9 @@ int main(int argc, const char **argv)
         else if (strcmp(argv[0], "update-index") == 0)
         {
             return cmd_update_index(argv, argc);
+        }
+        else if (strcmp(argv[0], "traverse") == 0){
+            return traverse_index(argv, argc);
         }
     }
 }

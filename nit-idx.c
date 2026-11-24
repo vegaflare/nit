@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include "nit-idx.h"
 /*
     type    -> type of file
@@ -96,21 +97,23 @@ int update_idx_header(uint8_t flag, int update, FILE *idx)
     return 0;
 }
 
-int write_idx_entry(FILE *f, const struct nit_idx_entry *e)
+int write_idx_entry(FILE *f, struct nit_idx_entry *e)
 {
-    size_t len = strlen(e->filename);
-    if (len > UINT16_MAX)
+    e->len = strlen(e->filename);
+    if (e->len > UINT32_MAX)
         return -1;
-    uint16_t type = htons(e->type);
-    uint32_t mtime = htons(e->mtime);
-    uint16_t nlen = htons((uint16_t)len);
+    uint32_t type = htonl(e->type);
+    uint32_t mtime = htonl(e->mtime);
+    uint32_t nlen = htonl(e->len);
+    memcpy(e->mode, "NW", 2);  // NW for new entry
     if (fseek(f,0, SEEK_END) != 0|| 
         fwrite(&type, sizeof type, 1, f) != 1 ||
+        fwrite(e->mode, 1, 2, f) != 2||
         fwrite(&mtime, sizeof mtime, 1, f) != 1 ||
         fwrite(&nlen, sizeof nlen, 1, f) != 1 ||
-        fwrite(e->filename, 1, len, f) != len)
+        fwrite(e->filename, 1, e->len, f) != e->len)
     {
-        printf("Error writing file\n");
+        perror("Error writing file");
         return -1;
     }
     fflush(f);
@@ -156,31 +159,64 @@ bool initialize_index()
     }
 }
 
-int read_idx_entry(struct nit_idx_entry *e, int index)
+int read_idx_entry(struct nit_idx_entry *e, int index, FILE *f)
 {
-    FILE *f = fopen(".nit/index", "rb");
+    //FILE *f = fopen(".nit/index", "rb");
     if (f == NULL)
     {
         perror("Failed reading index");
         return 2;
     }
-    if(fseek(f, 12, SEEK_SET) != 0){
-        perror("Failed seeking index");
+    if(ftell(f) < 12){
+        if(fseek(f, 12, SEEK_SET) != 0 || feof(f)){
+            perror("Reading index entry past header failed");
+            return 2;
+        }
+    }
+    unsigned char buf[14];
+
+    if(fread(buf, 1, sizeof buf, f) != sizeof buf){
+        perror("Error reading entry");
         return 2;
     }
-    for (int i = 0; i < index; ++i)
-    {
-        
+
+    e->type = get_be32(buf);
+    memcpy(e->mode,buf +4, 2);
+    e->mtime = get_be32(buf +6);
+    e->len = get_be32(buf +10);
+    e->filename = malloc(e->len+1);
+    if(!e->filename){
+        perror("Invalid index entry");
+        return 3;
     }
+     if(fread(e->filename, 1, e->len, f) != e->len){
+        perror("Error reading entry");
+        return 2;
+    }
+    e->filename[e->len] = '\0';
+    
+    if(feof(f)){
+        return 1;
+    }
+    return 0;
 }
 
 //  Check if a file is already added into the index
-/*
-int traverse_index(char **argv, int idx)
+
+int traverse_index(const char **argv, int argc)
 {
     struct nit_idx_header h;
+    FILE *idx = fopen(".nit/index", "r+b");
     read_idx_header(&h, idx);
+    printf("%.4s\tv%d\t%d\n", h.signature, h.version, h.n_entries);
+    struct nit_idx_entry e;
+    read_idx_entry(&e, 0, idx);
+    printf("%d\t%.2s\t%d\t%d\t%s", e.type, e.mode, e.mtime, e.len, e.filename);
+   // for(int i = 0; i <= h.n_entries; ++i){
+
+    //}    
+
 }
-    */
+    
 
 

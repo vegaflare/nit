@@ -92,15 +92,16 @@ int cmd_update_index(const char **argv, int argc)
     ie.filename = malloc(strlen(argv[2]));
     memcpy(ie.filename, argv[2], strlen(argv[2]));
     FILE *index = fopen(".nit/index", "r+b");
-    if (!index) {
-    perror(".nit/index");
-    return 1;
-}
+    if (!index)
+    {
+        perror(".nit/index");
+        return 1;
+    }
     // fprintf(index, "%s\t%d\t%s\n", argv[1], st.st_mtime, argv[2]);
-    
+
     if (write_idx_entry(index, &ie) == 0)
     {
-        printf("Index updated:\n\t%s    %d    %s\n", argv[1], st.st_mtime, argv[2]);
+        printf("Index updated:\n\t%s    %d    %d    %s\n", argv[1], st.st_mtime, strlen(argv[2]), argv[2]);
         fclose(index);
         free(ie.filename);
         return 0;

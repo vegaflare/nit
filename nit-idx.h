@@ -21,26 +21,29 @@
 */
 struct nit_idx_entry
 {
-    uint16_t type;
+    uint32_t type;
+    char mode[2];
     uint32_t mtime;
-    char mode;
+    uint32_t len;
     char *filename;
 };
 
 struct nit_idx_header
 {
+    char signature[4];
     uint32_t version; // Will not be used for now
     uint32_t n_entries;
-    char signature[4];
+    
 };
 
 int read_idx_header(struct nit_idx_header *header, FILE *idx);
 int write_idx_header(struct nit_idx_header *h, FILE *idx);
 
 int update_idx_header(uint8_t flag, int update, FILE *idx);
-int write_idx_entry(FILE *f, const struct nit_idx_entry *e);
+int write_idx_entry(FILE *f, struct nit_idx_entry *e);
 bool initialize_index(void);
-int read_idx_entry(struct nit_idx_entry *e, int index);
+int read_idx_entry(struct nit_idx_entry *e, int index, FILE *f);
 
+int traverse_index(const char **argv, int argc);
 
 #endif
