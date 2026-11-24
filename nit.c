@@ -89,8 +89,9 @@ int cmd_update_index(const char **argv, int argc)
     struct nit_idx_entry ie;
     ie.type = atoi(argv[1]);
     ie.mtime = st.st_mtime;
-    ie.filename = malloc(strlen(argv[2]));
-    memcpy(ie.filename, argv[2], strlen(argv[2]));
+    ie.len = strlen(argv[2]);
+    ie.filename = malloc(ie.len);
+    memcpy(ie.filename, argv[2], ie.len);
     FILE *index = fopen(".nit/index", "r+b");
     if (!index)
     {
@@ -101,7 +102,7 @@ int cmd_update_index(const char **argv, int argc)
 
     if (write_idx_entry(index, &ie) == 0)
     {
-        printf("Index updated:\n\t%s    %d    %d    %s\n", argv[1], st.st_mtime, strlen(argv[2]), argv[2]);
+        printf("Index updated:\n\t%s    %d    %d    %s\n", argv[1], st.st_mtime, strlen(argv[2]),argv[2]);
         fclose(index);
         free(ie.filename);
         return 0;

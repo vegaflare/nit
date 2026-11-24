@@ -99,18 +99,18 @@ int update_idx_header(uint8_t flag, int update, FILE *idx)
 
 int write_idx_entry(FILE *f, struct nit_idx_entry *e)
 {
-    e->len = strlen(e->filename);
     if (e->len > UINT32_MAX)
         return -1;
     uint32_t type = htonl(e->type);
     uint32_t mtime = htonl(e->mtime);
-    uint32_t nlen = htonl(e->len);
+    uint32_t len = htonl(e->len);
+  //  printf("1: %d, 2: %d, %s", len, e->len, e->filename);
     memcpy(e->mode, "NW", 2);  // NW for new entry
     if (fseek(f,0, SEEK_END) != 0|| 
         fwrite(&type, sizeof type, 1, f) != 1 ||
         fwrite(e->mode, 1, 2, f) != 2||
         fwrite(&mtime, sizeof mtime, 1, f) != 1 ||
-        fwrite(&nlen, sizeof nlen, 1, f) != 1 ||
+        fwrite(&len, sizeof len, 1, f) != 1 ||
         fwrite(e->filename, 1, e->len, f) != e->len)
     {
         perror("Error writing file");
@@ -179,7 +179,6 @@ int read_idx_entry(struct nit_idx_entry *e, int index, FILE *f)
         perror("Error reading entry");
         return 2;
     }
-
     e->type = get_be32(buf);
     memcpy(e->mode,buf +4, 2);
     e->mtime = get_be32(buf +6);
@@ -193,6 +192,7 @@ int read_idx_entry(struct nit_idx_entry *e, int index, FILE *f)
         perror("Error reading entry");
         return 2;
     }
+    // Add null
     e->filename[e->len] = '\0';
     
     if(feof(f)){
@@ -210,11 +210,13 @@ int traverse_index(const char **argv, int argc)
     read_idx_header(&h, idx);
     printf("%.4s\tv%d\t%d\n", h.signature, h.version, h.n_entries);
     struct nit_idx_entry e;
-    read_idx_entry(&e, 0, idx);
-    printf("%d\t%.2s\t%d\t%d\t%s", e.type, e.mode, e.mtime, e.len, e.filename);
-   // for(int i = 0; i <= h.n_entries; ++i){
-
-    //}    
+    
+   for(int i = 0; i < h.n_entries; ++i){
+        read_idx_entry(&e, 0, idx);
+        printf("%d\t%.2s\t%d\t%d\t%s\n", e.type, e.mode, e.mtime, e.len, e.filename);
+    }    
+    fclose(idx);
+    free(e.filename);
 
 }
     
