@@ -1,5 +1,6 @@
 #include "configs.h"
 #include "common-funcs.h"
+#include "nit-idx.h"
 
 int cmd_init()
 {
@@ -27,6 +28,10 @@ int cmd_init()
         if (make_dir(".nit/refs") < 0 || make_dir(".nit/refs/heads") < 0 || make_dir(".nit/objects") < 0)
         {
             printf("Error initializing repo.\n");
+            return 2;
+        }
+        if(!initialize_index()){
+            perror("Failed initializing the index");
             return 2;
         }
         printf("nit repo initialized.\n");
