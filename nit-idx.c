@@ -176,6 +176,12 @@ int read_idx_entry(struct nit_idx_entry *e, int index, FILE *f)
     unsigned char buf[14];
 
     if(fread(buf, 1, sizeof buf, f) != sizeof buf){
+        
+        if(feof(f)){
+            printf("Reached file end.\n");
+            return 1;
+        }
+
         perror("Error reading entry");
         return 2;
     }
@@ -217,6 +223,32 @@ int traverse_index(const char **argv, int argc)
     }    
     fclose(idx);
     free(e.filename);
+
+}
+
+// Recursive fn for searching a file name
+bool  index_lookup(FILE *idx, struct nit_idx_entry *e, const char *fname, uint32_t count)
+{
+    if(ftell(idx) < 12){
+        if(fseek(idx, 12, SEEK_SET) != 0 || feof(idx)){
+            perror("Reading index entry past header failed");
+            return 2;
+        }
+    }
+   for(int i = 0; i < count; ++i){
+        if(read_idx_entry(e, 0, idx) == 0){
+        if(strcmp(e->filename, fname)==0){
+            return true;
+        }
+        else if(feof(idx)){
+            return false;
+        }
+        
+        return index_lookup(idx, e,fname, count--);
+    }
+    return false;
+    }    
+
 
 }
     

@@ -36,5 +36,8 @@ int main(int argc, const char **argv)
         else if (strcmp(argv[0], "traverse") == 0){
             return traverse_index(argv, argc);
         }
+        else if (strcmp(argv[0], "search-index") == 0){
+            return cmd_index_search(argv, argc);
+        }
     }
 }

@@ -110,3 +110,26 @@ int cmd_update_index(const char **argv, int argc)
     fclose(index);
     free(ie.filename);
 }
+
+int cmd_index_search(const char **argv, int argc){
+
+    if (argc != 2)
+    {
+        printf("Invalid function call: update_index_cmd\n");
+        return -1;
+    }
+
+    FILE *f = fopen(".nit/index", "r+b");
+    struct nit_idx_entry e;
+    struct nit_idx_header h;
+    if(read_idx_header(&h, f) != 0){
+        return 2;
+    }
+    if(index_lookup(f, &e, argv[1], h.n_entries)){
+        printf("Entry found:\n\t%d\t%.2s\t%d\t%d\t%s\n", e.type, e.mode, e.mtime, e.len, e.filename);
+        return 0;
+    }
+    else{
+         printf("File entry not found.\n");
+    }
+}

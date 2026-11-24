@@ -22,3 +22,4 @@ extern const char nit_help[];
 int cmd_init();
 int cmd_status(const char **argv, int argc);
 int cmd_update_index(const char **argv, int argc);
+int cmd_index_search(const char **argv, int argc);

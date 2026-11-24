@@ -45,5 +45,6 @@ bool initialize_index(void);
 int read_idx_entry(struct nit_idx_entry *e, int index, FILE *f);
 
 int traverse_index(const char **argv, int argc);
+bool  index_lookup(FILE *idx, struct nit_idx_entry *e, const char *fname, uint32_t count);
 
 #endif
