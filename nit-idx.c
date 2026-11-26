@@ -223,6 +223,9 @@ int traverse_index(const char **argv, int argc)
     char *sha1sum = malloc(41); // size of sha1 sum + null byte
    for(int i = 0; i < h.n_entries; ++i){
         read_idx_entry(&e, 0, idx);
+        // hash calculation is done here to verify the working of the function
+        // this will be removed from here and ported to index update and index
+        // will have a hash of the file in it
         if(hash_file(e.filename, sha1sum)){
         return -1;
         }
