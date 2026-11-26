@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include "nit-idx.h"
+#include "common-funcs.h"
 /*
     type    -> type of file
     mtime   -> last modified time
@@ -217,9 +218,19 @@ int traverse_index(const char **argv, int argc)
     printf("%.4s\tv%d\t%d\n", h.signature, h.version, h.n_entries);
     struct nit_idx_entry e;
     
+    unsigned char *sha1sum = malloc(20);
+
    for(int i = 0; i < h.n_entries; ++i){
         read_idx_entry(&e, 0, idx);
-        printf("%d\t%.2s\t%d\t%d\t%s\n", e.type, e.mode, e.mtime, e.len, e.filename);
+        printf("%d\t%.2s\t%d\t%d\t%s\t", e.type, e.mode, e.mtime, e.len, e.filename);
+        if(!hash_file(e.filename, sha1sum)){
+            printf("\n");
+            continue;
+        }
+        for (int i =0; i<20; i++){
+            printf("%02x", sha1sum[i]);
+        }
+        printf("\n");
     }    
     fclose(idx);
     free(e.filename);
@@ -232,7 +243,7 @@ bool  index_lookup(FILE *idx, struct nit_idx_entry *e, const char *fname, uint32
     if(ftell(idx) < 12){
         if(fseek(idx, 12, SEEK_SET) != 0 || feof(idx)){
             perror("Reading index entry past header failed");
-            return 2;
+            return false;
         }
     }
    for(int i = 0; i < count; ++i){
