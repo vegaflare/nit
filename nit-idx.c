@@ -233,6 +233,7 @@ int traverse_index(const char **argv, int argc)
         printf("\n");
     }    
     fclose(idx);
+    free(sha1sum);
     free(e.filename);
 
 }
