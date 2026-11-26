@@ -214,23 +214,20 @@ int traverse_index(const char **argv, int argc)
 {
     struct nit_idx_header h;
     FILE *idx = fopen(".nit/index", "r+b");
+    if(!idx){
+        return -1;
+    }
     read_idx_header(&h, idx);
     printf("%.4s\tv%d\t%d\n", h.signature, h.version, h.n_entries);
     struct nit_idx_entry e;
-    
-    unsigned char *sha1sum = malloc(20);
-
+    char *sha1sum = malloc(41); // size of sha1 sum + null byte
    for(int i = 0; i < h.n_entries; ++i){
         read_idx_entry(&e, 0, idx);
-        printf("%d\t%.2s\t%d\t%d\t%s\t", e.type, e.mode, e.mtime, e.len, e.filename);
-        if(!hash_file(e.filename, sha1sum)){
-            printf("\n");
-            continue;
+        if(hash_file(e.filename, sha1sum)){
+        return -1;
         }
-        for (int i =0; i<20; i++){
-            printf("%02x", sha1sum[i]);
-        }
-        printf("\n");
+        printf("%d\t%.2s\t%d\t%d\t%s\t%s", e.type, e.mode, e.mtime, e.len, e.filename,sha1sum);
+  
     }    
     fclose(idx);
     free(sha1sum);

@@ -14,11 +14,14 @@ int make_dir(const char *path)
     return 0;
 }
 
-bool hash_file(char *fname, unsigned char *hash){
-    FILE *f =  fopen(fname, "rb");
-    if(!f){
+int hash_file(char *fname, char *output)
+{
+    FILE *f = fopen(fname, "rb");
+    if (!f)
+    {
+        printf("Failed opening file: %s", fname);
         perror("fopen-hash_file");
-        return false;
+        return -1;
     }
 
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -26,16 +29,26 @@ bool hash_file(char *fname, unsigned char *hash){
 
     unsigned char buf[4096];
     size_t n;
-    while((n = fread(buf, 1, sizeof buf, f)) > 0){
+    while ((n = fread(buf, 1, sizeof buf, f)) > 0)
+    {
         EVP_DigestUpdate(ctx, buf, n);
     }
     fclose(f);
 
-    // unsigned char *hash = malloc(20); // sha1 hash is 160 bits -> 20 bytes
+    unsigned char hash[20]; // sha1 hash is 160 bits -> 20 bytes
+    if (!output)
+    {
+        printf("Null pointer passed - hash_file\n");
+        return -1;
+    }
     unsigned int len = 0;
 
     EVP_DigestFinal_ex(ctx, hash, &len);
     EVP_MD_CTX_free(ctx);
-
-    return true;
+    for (int i = 0; i < 20; i++)
+    {
+        sprintf(output + i * 2, "%02x", hash[i]);
+    }
+    output[40] = '\0';
+    return 0;
 }
